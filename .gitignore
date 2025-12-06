@@ -1,0 +1,81 @@
+# Ignore dataset folders
+data/
+dataset/
+datasets/
+raw_data/
+processed_data/
+input/
+outputs/
+files/
+storage/
+tmp/
+temp/
+asl_datadet/
+new_data/
+D/
+venv/
+testing.py
+Refining.py
+__pycache__/
+.env
+# Ignore dataset file types
+*.csv
+*.tsv
+*.json
+*.jsonl
+*.xlsx
+*.xls
+*.xml
+*.parquet
+*.feather
+*.hdf5
+*.h5
+*.env
+*.pickle
+*.pkl
+*.db
+*.sqlite
+*.sql
+*.mp3
+
+
+# Ignore text-based large files
+*.txt
+*.log
+
+# Ignore compressed dataset archives
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.tar.gz
+
+# Ignore image datasets
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.webp
+
+# Ignore audio/video datasets
+*.mp3
+*.wav
+*.flac
+*.mp4
+*.avi
+*.mkv
+
+# Ignore notebooks with outputs
+*.ipynb_checkpoints/
+
+# Ignore large files in general
+*.bin
+*.npy
+*.npz
+
+# Optional: ignore everything in /public/ or /assets/ datasets
+public/datasets/
+assets/datasets/
