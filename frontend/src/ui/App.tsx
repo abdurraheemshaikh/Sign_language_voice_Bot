@@ -53,21 +53,13 @@ export function App() {
   const [running, setRunning] = useState(false);
   const [status, setStatus] = useState("Idle");
   const [detected, setDetected] = useState<string | null>(null);
-  const [confidence, setConfidence] = useState<number | null>(null);
   const [stableCount, setStableCount] = useState(0);
   const [lastGesture, setLastGesture] = useState<string | null>(null);
   const [lastCommittedAt, setLastCommittedAt] = useState(0);
-  const [threshold, setThreshold] = useState(0.6);
-  const [autoCommit, setAutoCommit] = useState(true);
-  const [autoSpeak, setAutoSpeak] = useState(true);
   const [transcript, setTranscript] = useState("");
   const [contrastHigh, setContrastHigh] = useState(false);
   const [ariaLive, setAriaLive] = useState("");
-
-  const debounceLabel = useMemo(
-    () => `${stableCount}/${DEBOUNCE_FRAMES}`,
-    [stableCount],
-  );
+  const transcriptChars = useMemo(() => transcript.length, [transcript]);
 
   useEffect(() => {
     document.documentElement.toggleAttribute("data-contrast-high", contrastHigh);
@@ -103,7 +95,7 @@ export function App() {
     }
     setTranscript((t) => t + gesture);
     if (gesture === " ") {
-      if (autoSpeak) speakText(getLastWord(transcript + " "));
+      speakText(getLastWord(transcript + " "));
     } else {
       setAriaLive(`Added ${gesture}`);
     }
@@ -125,14 +117,9 @@ export function App() {
     ctx.drawImage(video, 0, 0, width, height);
     const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
 
-    const { gesture, confidence } = await postPredict(dataUrl);
+    const { gesture } = await postPredict(dataUrl);
     setDetected(gesture);
-    setConfidence(confidence);
-
-    const confOk =
-      confidence === null || confidence === undefined ? true : confidence >= threshold;
-
-    if (!gesture || !confOk) {
+    if (!gesture) {
       setStatus("Looking for hand…");
       setLastGesture(null);
       setStableCount(0);
@@ -146,15 +133,13 @@ export function App() {
     });
     setLastGesture(gesture);
 
-    if (autoCommit) {
-      const now = Date.now();
-      const countNow = gesture === lastGesture ? stableCount + 1 : 1;
-      if (countNow >= DEBOUNCE_FRAMES && now - lastCommittedAt > 550) {
-        commit(gesture);
-        setLastCommittedAt(now);
-        setLastGesture(null);
-        setStableCount(0);
-      }
+    const now = Date.now();
+    const countNow = gesture === lastGesture ? stableCount + 1 : 1;
+    if (countNow >= DEBOUNCE_FRAMES && now - lastCommittedAt > 550) {
+      commit(gesture);
+      setLastCommittedAt(now);
+      setLastGesture(null);
+      setStableCount(0);
     }
   }
 
@@ -194,7 +179,6 @@ export function App() {
     setRunning(false);
     setStatus("Stopped");
     setDetected(null);
-    setConfidence(null);
     setLastGesture(null);
     setStableCount(0);
     stopSpeaking();
@@ -220,7 +204,19 @@ export function App() {
         <div className="container topbarInner">
           <div className="brand">
             <div className="mark" aria-hidden="true">
-              WH
+              <svg viewBox="0 0 24 24" role="img" aria-label="Hand speech icon">
+                <path
+                  d="M8.2 12V7.1a1 1 0 1 1 2 0v2.8h.7V6.3a1 1 0 1 1 2 0v3.6h.7V7a1 1 0 1 1 2 0v5l.8-.6a1.1 1.1 0 0 1 1.5.2c.4.4.3 1.1-.1 1.5l-2.3 2a3.8 3.8 0 0 1-2.5.9h-2.1A3.2 3.2 0 0 1 8.2 13V12Z"
+                  fill="#3b82f6"
+                />
+                <path
+                  d="M16.5 4.8a3 3 0 0 1 0 4.2m1.8-6.1a5.7 5.7 0 0 1 0 8.2"
+                  fill="none"
+                  stroke="#0f172a"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
             <div>
               <div className="name">Whispering Hands</div>
@@ -231,9 +227,6 @@ export function App() {
             <button className="btn ghost" onClick={() => setContrastHigh((v) => !v)}>
               High contrast
             </button>
-            <a className="btn ghost" href="/api/health">
-              API health
-            </a>
           </div>
         </div>
       </header>
@@ -251,6 +244,7 @@ export function App() {
               </button>
             </div>
           </div>
+          <p className="cardSubtle">Show your hand clearly and keep gestures steady.</p>
 
           <div className="stage" aria-label="Camera preview">
             <video ref={videoRef} playsInline muted />
@@ -262,21 +256,9 @@ export function App() {
             </div>
           </div>
 
-          <div className="metrics">
-            <div className="metric">
-              <div className="metricLabel">Detected</div>
-              <div className="metricValue mono">{detected ?? "—"}</div>
-            </div>
-            <div className="metric">
-              <div className="metricLabel">Confidence</div>
-              <div className="metricValue mono">
-                {confidence === null ? "—" : confidence.toFixed(2)}
-              </div>
-            </div>
-            <div className="metric">
-              <div className="metricLabel">Debounce</div>
-              <div className="metricValue mono">{debounceLabel}</div>
-            </div>
+          <div className="previewBadge">
+            <span className="metricLabel">Latest gesture</span>
+            <span className="metricValue mono">{detected ?? "—"}</span>
           </div>
 
           <div className="hint" role="note">
@@ -296,39 +278,7 @@ export function App() {
               </button>
             </div>
           </div>
-
-          <div className="controls">
-            <label className="toggle">
-              <input
-                type="checkbox"
-                checked={autoSpeak}
-                onChange={(e) => setAutoSpeak(e.target.checked)}
-              />
-              <span>Auto-speak on SPACE</span>
-            </label>
-
-            <label className="toggle">
-              <input
-                type="checkbox"
-                checked={autoCommit}
-                onChange={(e) => setAutoCommit(e.target.checked)}
-              />
-              <span>Auto-commit letters (debounced)</span>
-            </label>
-
-            <label className="field">
-              <span className="fieldLabel">Confidence threshold</span>
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.05}
-                value={threshold}
-                onChange={(e) => setThreshold(Number(e.target.value))}
-              />
-              <span className="fieldValue mono">{threshold.toFixed(2)}</span>
-            </label>
-          </div>
+          <p className="cardSubtle transcriptMeta">Characters: {transcriptChars}</p>
 
           <div className="textbox">
             <div className="srAnnounce" aria-live="polite">
@@ -351,7 +301,7 @@ export function App() {
                 className="btn ghost"
                 onClick={() => {
                   setTranscript((t) => t + " ");
-                  if (autoSpeak) speakText(getLastWord(transcript + " "));
+                  speakText(getLastWord(transcript + " "));
                 }}
               >
                 SPACE
