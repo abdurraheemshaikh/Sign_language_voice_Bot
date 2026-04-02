@@ -146,12 +146,15 @@ body{
 }
 
 .stage{
-  margin: 1rem;
+  margin: 0;
   border-radius: 16px;
   overflow:hidden;
   border: 1px solid var(--border);
   background: #0f1522;
   position:relative;
+  z-index: 0;
+  width: 100%;
+  max-width: 100%;
   aspect-ratio: 16 / 10;
   max-height: 52vh;
   min-height: 300px;
@@ -159,7 +162,42 @@ body{
   place-items:center;
   box-shadow: inset 0 0 0 1px rgba(79,124,255,.18);
 }
-video{ width:100%; height:100%; object-fit:cover; display:block; }
+.cameraLearnGrid{
+  margin: 1rem;
+  display: grid;
+  /* minmax(0, fr) lets columns shrink so the camera never overlaps the chart */
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: .85rem;
+  align-items: start;
+}
+.cameraLearnGrid > *{
+  min-width: 0;
+}
+.learnSideCard{
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--card) 88%, #eef3ff);
+  padding: .6rem;
+  position: relative;
+  z-index: 0;
+}
+.learnBottomCard .learnWrap{
+  padding-top: 0;
+}
+.learnSideTitle{
+  font-size: .92rem;
+  color: var(--muted);
+  margin: 0 0 .45rem;
+  font-weight: 650;
+}
+video{
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  min-width: 0;
+  object-fit: cover;
+  display: block;
+}
 .overlay{ position:absolute; inset:.75rem; display:flex; justify-content:flex-start; align-items:flex-start; pointer-events:none; }
 .pill{
   background: rgba(7, 12, 22, .68);
@@ -217,6 +255,18 @@ video{ width:100%; height:100%; object-fit:cover; display:block; }
 }
 .details summary{ cursor:pointer; color: var(--muted); }
 .list{ margin: .65rem 0 0 1.1rem; color: var(--muted); }
+.learnWrap{
+  padding: 0 1rem 1rem;
+}
+.learnImage{
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.10);
+}
 kbd{
   font-family: var(--mono);
   font-size: .85rem;
@@ -251,5 +301,6 @@ kbd{
   .row.wrap > .btn{ flex: 1 1 46%; }
   .stage{ min-height: 220px; max-height: 42vh; }
   .quickPhrases{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cameraLearnGrid{ grid-template-columns: 1fr; }
 }
 

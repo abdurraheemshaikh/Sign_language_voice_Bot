@@ -275,13 +275,23 @@ export function App() {
           </div>
           <p className="cardSubtle">Show your hand clearly and keep gestures steady.</p>
 
-          <div className="stage" aria-label="Camera preview">
-            <video ref={videoRef} playsInline muted />
-            <canvas ref={canvasRef} className="srOnly" aria-hidden="true" />
-            <div className="overlay">
-              <div className="pill" aria-live="polite">
-                {statusLabel}
+          <div className="cameraLearnGrid">
+            <div className="stage" aria-label="Camera preview">
+              <video ref={videoRef} playsInline muted />
+              <canvas ref={canvasRef} className="srOnly" aria-hidden="true" />
+              <div className="overlay">
+                <div className="pill" aria-live="polite">
+                  {statusLabel}
+                </div>
               </div>
+            </div>
+            <div className="learnSideCard">
+              <div className="learnSideTitle">Sign Chart</div>
+              <img
+                className="learnImage"
+                src="/signlang.png"
+                alt="Sign language learning chart"
+              />
             </div>
           </div>
 
@@ -380,6 +390,20 @@ export function App() {
               </li>
             </ul>
           </details>
+        </section>
+
+        <section className="card learnBottomCard">
+          <div className="cardHeader">
+            <h2 className="h2">Learn basic signs</h2>
+          </div>
+          <div className="learnWrap">
+            <p className="cardSubtle">Full alphabet reference for anyone new to sign.</p>
+            <img
+              className="learnImage"
+              src="/signlang.png"
+              alt="Sign language alphabet reference chart"
+            />
+          </div>
         </section>
       </main>
 
