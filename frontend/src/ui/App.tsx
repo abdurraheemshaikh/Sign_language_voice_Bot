@@ -45,6 +45,7 @@ async function postPredict(dataUrl: string): Promise<PredictResponse> {
 }
 
 export function App() {
+  const QUICK_PHRASES = ["Hello", "Please wait", "Thank you", "I need help", "Yes", "No"];
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -57,9 +58,17 @@ export function App() {
   const [lastGesture, setLastGesture] = useState<string | null>(null);
   const [lastCommittedAt, setLastCommittedAt] = useState(0);
   const [transcript, setTranscript] = useState("");
+  const [history, setHistory] = useState<string[]>([]);
   const [contrastHigh, setContrastHigh] = useState(false);
   const [ariaLive, setAriaLive] = useState("");
   const transcriptChars = useMemo(() => transcript.length, [transcript]);
+  const statusLabel = useMemo(() => {
+    if (status === "Backend error" || status === "Camera blocked") return "Error";
+    if (status === "Detecting…") return "Detecting";
+    if (status === "Looking for hand…") return "No hand";
+    if (status === "Running" || status === "Requesting camera…") return "Ready";
+    return "Ready";
+  }, [status]);
 
   useEffect(() => {
     document.documentElement.toggleAttribute("data-contrast-high", contrastHigh);
@@ -89,16 +98,36 @@ export function App() {
 
   function commit(gesture: string) {
     if (gesture === "DELETE") {
-      setTranscript((t) => t.slice(0, -1));
+      applyTranscriptChange((t) => t.slice(0, -1));
       setAriaLive("Deleted.");
       return;
     }
-    setTranscript((t) => t + gesture);
+    applyTranscriptChange((t) => t + gesture);
     if (gesture === " ") {
       speakText(getLastWord(transcript + " "));
     } else {
       setAriaLive(`Added ${gesture}`);
     }
+  }
+
+  function applyTranscriptChange(updater: (current: string) => string) {
+    setTranscript((current) => {
+      const next = updater(current);
+      if (next !== current) {
+        setHistory((h) => [...h.slice(-9), current]);
+      }
+      return next;
+    });
+  }
+
+  function undoLast() {
+    setHistory((h) => {
+      if (h.length === 0) return h;
+      const previous = h[h.length - 1];
+      setTranscript(previous);
+      setAriaLive("Undid last action.");
+      return h.slice(0, -1);
+    });
   }
 
   async function predictOnce() {
@@ -251,7 +280,7 @@ export function App() {
             <canvas ref={canvasRef} className="srOnly" aria-hidden="true" />
             <div className="overlay">
               <div className="pill" aria-live="polite">
-                {status}
+                {statusLabel}
               </div>
             </div>
           </div>
@@ -273,12 +302,27 @@ export function App() {
               <button className="btn" onClick={() => speakText(transcript)}>
                 Speak
               </button>
-              <button className="btn ghost" onClick={() => setTranscript("")}>
+              <button className="btn ghost" onClick={undoLast} disabled={history.length === 0}>
+                Undo
+              </button>
+              <button className="btn ghost" onClick={() => applyTranscriptChange(() => "")}>
                 Clear
               </button>
             </div>
           </div>
           <p className="cardSubtle transcriptMeta">Characters: {transcriptChars}</p>
+
+          <div className="quickPhrases">
+            {QUICK_PHRASES.map((phrase) => (
+              <button
+                key={phrase}
+                className="btn ghost"
+                onClick={() => applyTranscriptChange((t) => `${t}${t.endsWith(" ") || t.length === 0 ? "" : " "}${phrase} `)}
+              >
+                {phrase}
+              </button>
+            ))}
+          </div>
 
           <div className="textbox">
             <div className="srAnnounce" aria-live="polite">
@@ -294,13 +338,13 @@ export function App() {
               aria-label="Transcript text"
             />
             <div className="row wrap">
-              <button className="btn ghost" onClick={() => setTranscript((t) => t.slice(0, -1))}>
+              <button className="btn ghost" onClick={() => applyTranscriptChange((t) => t.slice(0, -1))}>
                 Backspace
               </button>
               <button
                 className="btn ghost"
                 onClick={() => {
-                  setTranscript((t) => t + " ");
+                  applyTranscriptChange((t) => t + " ");
                   speakText(getLastWord(transcript + " "));
                 }}
               >

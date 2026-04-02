@@ -187,6 +187,13 @@ video{ width:100%; height:100%; object-fit:cover; display:block; }
 
 .hint{ padding:.8rem 1rem 1rem; color: var(--muted); }
 
+.quickPhrases{
+  padding: 0 1rem .85rem;
+  display: grid;
+  gap: .5rem;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+
 .textbox{ padding: 0 1rem 1rem; display:grid; gap:.6rem; }
 .textarea{
   width:100%;
@@ -243,5 +250,6 @@ kbd{
   .cardHeader{ flex-direction: column; align-items: flex-start; }
   .row.wrap > .btn{ flex: 1 1 46%; }
   .stage{ min-height: 220px; max-height: 42vh; }
+  .quickPhrases{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
