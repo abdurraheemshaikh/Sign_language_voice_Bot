@@ -1,0 +1,30 @@
+when i load this model in mediapipe and make hand signs it does not give correct predictions
+
+ModuleNotFoundError                       Traceback (most recent call last)
+/tmp/ipykernel_38/598047503.py in <cell line: 0>()
+      1 import cv2
+----> 2 import mediapipe as mp
+      3 import numpy as np
+      4 import tensorflow as tf
+      5 import tensorflow as tf
+
+ModuleNotFoundError: No module named 'mediapipe'
+
+
+(venv) PS D:\University\7th-semester\Gen-Ai\Project> python test.py
+🎥 Webcam opened successfully!
+[ WARN:0@12.374] global cap_msmf.cpp:1795 CvCapture_MSMF::grabFrame videoio(MSMF): can't grab frame. Error: -2147483638
+❌ Failed to grab frame
+
+can we open webcam on collab
+
+okay now i have a 89% acc trained model whats next how to connect with media pipe
+
+why fine tuning is decreasing the acc
+
+how much loss is good ?
+
+now i want to store the letter predicted but it keep predict every frame only add letter to array 
+when a new letter is predicted
+
+ValueError: X has 84 features, but RandomForestClassifier is expecting 42 features as input.

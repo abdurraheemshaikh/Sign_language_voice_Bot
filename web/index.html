@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Whispering Hands</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="topbar" role="banner">
+      <div class="container topbar__inner">
+        <div class="brand">
+          <div class="brand__mark" aria-hidden="true">WH</div>
+          <div class="brand__text">
+            <div class="brand__name">Whispering Hands</div>
+            <div class="brand__tag">Real-time sign-to-speech</div>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <button id="toggleContrast" class="btn btn--ghost" type="button">
+            High contrast
+          </button>
+          <a class="btn btn--ghost" href="/api/health">API health</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="container layout" role="main">
+      <section class="card camera" aria-label="Camera and live prediction">
+        <div class="card__header">
+          <h1 class="h1">Live camera</h1>
+          <div class="row">
+            <button id="startBtn" class="btn" type="button">Start</button>
+            <button id="stopBtn" class="btn btn--ghost" type="button" disabled>
+              Stop
+            </button>
+          </div>
+        </div>
+
+        <div class="camera__stage" aria-label="Camera preview">
+          <video id="video" playsinline muted></video>
+          <canvas id="canvas" class="sr-only" aria-hidden="true"></canvas>
+          <div class="camera__overlay">
+            <div class="pill" id="statusPill" aria-live="polite">Idle</div>
+            <div class="pill pill--right" id="fpsPill" aria-hidden="true">—</div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="metric">
+            <div class="metric__label">Detected</div>
+            <div class="metric__value" id="detectedValue">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric__label">Confidence</div>
+            <div class="metric__value" id="confidenceValue">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric__label">Debounce</div>
+            <div class="metric__value" id="debounceValue">0/5</div>
+          </div>
+        </div>
+
+        <div class="hint" id="permissionsHint" role="note">
+          Tip: If the camera is blocked, allow permissions in the browser.
+        </div>
+      </section>
+
+      <section class="card output" aria-label="Transcript and speech controls">
+        <div class="card__header">
+          <h2 class="h2">Transcript</h2>
+          <div class="row">
+            <button id="speakBtn" class="btn" type="button">Speak</button>
+            <button id="clearBtn" class="btn btn--ghost" type="button">Clear</button>
+          </div>
+        </div>
+
+        <div class="controls">
+          <label class="toggle">
+            <input id="autoSpeak" type="checkbox" checked />
+            <span>Auto-speak on SPACE</span>
+          </label>
+
+          <label class="toggle">
+            <input id="autoCommit" type="checkbox" checked />
+            <span>Auto-commit letters (debounced)</span>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Commit threshold</span>
+            <input id="threshold" type="range" min="0" max="1" step="0.05" value="0.6" />
+            <span class="field__value" id="thresholdValue">0.60</span>
+          </label>
+        </div>
+
+        <div class="textbox">
+          <div class="textbox__sr" aria-live="polite" id="ariaLive"></div>
+          <textarea
+            id="transcript"
+            class="textarea"
+            rows="8"
+            spellcheck="false"
+            aria-label="Transcript text"
+            placeholder="Your recognized letters will appear here..."
+          ></textarea>
+          <div class="row row--wrap">
+            <button id="backspaceBtn" class="btn btn--ghost" type="button">
+              Backspace
+            </button>
+            <button id="spaceBtn" class="btn btn--ghost" type="button">SPACE</button>
+            <button id="copyBtn" class="btn btn--ghost" type="button">Copy</button>
+          </div>
+        </div>
+
+        <details class="details">
+          <summary>Keyboard shortcuts</summary>
+          <ul class="list">
+            <li><kbd>Enter</kbd> Speak transcript</li>
+            <li><kbd>Esc</kbd> Stop speaking</li>
+            <li><kbd>Ctrl</kbd> + <kbd>Backspace</kbd> Clear</li>
+          </ul>
+        </details>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__inner">
+        <div>
+          Built for accessibility: keyboard-friendly, reduced motion support, and
+          screen-reader announcements.
+        </div>
+      </div>
+    </footer>
+
+    <script src="/assets/app.js"></script>
+  </body>
+</html>
+
